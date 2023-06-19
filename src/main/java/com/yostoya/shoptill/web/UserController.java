@@ -1,11 +1,8 @@
 package com.yostoya.shoptill.web;
 
 import com.yostoya.shoptill.domain.HttpResponse;
-import com.yostoya.shoptill.domain.dto.OrderDto;
+import com.yostoya.shoptill.domain.dto.*;
 import com.yostoya.shoptill.domain.User;
-import com.yostoya.shoptill.domain.dto.LoginDto;
-import com.yostoya.shoptill.domain.dto.NewOrderDto;
-import com.yostoya.shoptill.domain.dto.UserDto;
 import com.yostoya.shoptill.security.TokenProvider;
 import com.yostoya.shoptill.security.UserPrincipal;
 import com.yostoya.shoptill.service.UserService;
@@ -38,10 +35,10 @@ public class UserController {
     private final TokenProvider tokenProvider;
 
     @PostMapping("/register")
-    public ResponseEntity<HttpResponse> register(@RequestBody @Valid final User user,
+    public ResponseEntity<HttpResponse> register(@RequestBody @Valid final RegisterDto registerDto,
                                                  UriComponentsBuilder uriComponentsBuilder) {
 
-        final UserDto registered = userService.register(user);
+        final UserDto registered = userService.register(registerDto);
         final URI location = uriComponentsBuilder.path("/users/get/{id}").buildAndExpand(registered.id()).toUri();
 
         return ResponseEntity

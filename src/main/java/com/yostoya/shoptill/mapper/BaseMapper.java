@@ -1,87 +1,47 @@
 package com.yostoya.shoptill.mapper;
 
 
-import com.yostoya.shoptill.domain.Item;
-import com.yostoya.shoptill.domain.Role;
-import com.yostoya.shoptill.domain.dto.ItemDto;
-import com.yostoya.shoptill.domain.dto.UserDto;
-import com.yostoya.shoptill.exception.ApiException;
-import com.yostoya.shoptill.repository.ItemRepository;
-import com.yostoya.shoptill.repository.RoleRepository;
-import com.yostoya.shoptill.security.UserPrincipal;
-import com.yostoya.shoptill.service.facade.TillFacade;
+import com.yostoya.shoptill.domain.User;
+import com.yostoya.shoptill.exception.alreadyexist.UserAlreadyExistException;
+import com.yostoya.shoptill.repository.UserRepository;
+import jakarta.validation.Path;
 import lombok.RequiredArgsConstructor;
+import org.mapstruct.Condition;
 import org.mapstruct.MapperConfig;
 import org.mapstruct.Named;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Component
 @MapperConfig
 @RequiredArgsConstructor
 public class BaseMapper {
 
-    private final RoleRepository roleRepository;
-    private final ItemRepository itemRepository;
-    private final TillFacade tillFacade;
-    private final ItemMapper itemMapper;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    private Role findRoleByUserId(final Long id) {
-        return roleRepository.findById(id).orElseThrow();
+    @Named("encodePassword")
+    public String encodePassword(String raw) {
+        return passwordEncoder.encode(raw);
     }
 
-    @Named("findRole")
-    public String findRole(final Long id) {
-        return findRoleByUserId(id).getName().name();
+    @Named("notRegistered")
+    @Condition
+    private boolean notRegistered(String email) {
+        final Optional<User> user = userRepository.findByEmail(email);
+
+        if (user.isPresent()) {
+            throw new UserAlreadyExistException("email", email);
+        }
+
+        return true;
     }
 
-    @Named("findPermissions")
-    public String findPermissions(final Long id) {
-        return findRoleByUserId(id).getPermissions();
-    }
-
-    @Named("findItemById")
-    public Item findItemById(final Long id) {
-        return itemRepository.findById(id).orElseThrow(() -> new ApiException("Item not found"));
-    }
-
-    @Named("findItemByName")
-    public Item findItemByName(final String name) {
-        final Item item = itemRepository.findByName(name).orElseThrow(() -> new ApiException("Item not found"));
-        return new Item(item.getName(), item.getPrice(), item.isHalfPrice());
-    }
-
-
-    @Named("findItems")
-    private List<ItemDto> findItems(final Collection<String> names) {
-
-        final List<Item> items = names.stream().map(s -> {
-            final Item item = itemRepository.findByName(s).get();
-            return new Item(item.getName(), item.getPrice(), item.isHalfPrice());
-        }).toList();
-
-        return items.stream().map(itemMapper::toDto).toList();
-    }
-
-
-
-
-    @Named("getTotalAmount")
-    public BigDecimal getTotalAmount(final Collection<String> names) {
-
-        final List<Item> items = names.stream().map(s -> {
-            final Item item = itemRepository.findByName(s).get();
-            return new Item(item.getName(), item.getPrice(), item.isHalfPrice());
-        }).toList();
-
-        return tillFacade.calcTotal(items);
+    @Named("pathToString")
+    public String pathToString(Path path) {
+        return path.toString();
     }
 
 }

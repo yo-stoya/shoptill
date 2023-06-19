@@ -1,9 +1,8 @@
 package com.yostoya.shoptill.service;
 
-import com.yostoya.shoptill.domain.Item;
 import com.yostoya.shoptill.domain.dto.ItemDto;
 
-public interface ItemService {
+public interface AdminService {
 
     ItemDto addItem(final ItemDto newItem);
 

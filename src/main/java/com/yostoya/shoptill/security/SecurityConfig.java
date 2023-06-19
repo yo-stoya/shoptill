@@ -1,5 +1,6 @@
 package com.yostoya.shoptill.security;
 
+import com.yostoya.shoptill.domain.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -51,8 +52,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize -> {
             authorize.requestMatchers(PUBLIC_URLS).permitAll();
-            authorize.requestMatchers("/admin/item/**").hasAnyAuthority(
-                    "CREATE:ITEM", "UPDATE:ITEM", "DELETE:ITEM");
+            authorize.requestMatchers("/admin/**").hasRole(Role.ADMIN.name());
             authorize.anyRequest().authenticated();
         });
 

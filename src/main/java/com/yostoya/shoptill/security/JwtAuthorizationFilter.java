@@ -11,7 +11,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.util.Arrays;
 
-import static com.yostoya.shoptill.exception.ExceptionUtil.processError;
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpMethod.OPTIONS;
@@ -54,7 +53,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         } catch (Exception ex) {
             log.error(ex.getMessage());
-            processError(response, ex);
         }
     }
 

@@ -23,7 +23,7 @@ public class ApiAccessDeniedHandler implements AccessDeniedHandler {
                        HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException {
 
-        final HttpResponse responseBody = new HttpResponse(FORBIDDEN, "Access denied. Invalid permissions", Map.of());
+        final HttpResponse responseBody = new HttpResponse(FORBIDDEN, "Access denied. Invalid permissions");
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setStatus(FORBIDDEN.value());
 

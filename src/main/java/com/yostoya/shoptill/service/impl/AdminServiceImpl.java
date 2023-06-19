@@ -2,10 +2,10 @@ package com.yostoya.shoptill.service.impl;
 
 import com.yostoya.shoptill.domain.Item;
 import com.yostoya.shoptill.domain.dto.ItemDto;
-import com.yostoya.shoptill.exception.ApiException;
+import com.yostoya.shoptill.exception.notfound.ItemNotFoundException;
 import com.yostoya.shoptill.mapper.ItemMapper;
 import com.yostoya.shoptill.repository.ItemRepository;
-import com.yostoya.shoptill.service.ItemService;
+import com.yostoya.shoptill.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ItemServiceImpl implements ItemService {
+public class AdminServiceImpl implements AdminService {
 
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
@@ -37,6 +37,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private Item getItem(Long id) {
-        return itemRepository.findById(id).orElseThrow(() -> new ApiException("Item not found"));
+        return itemRepository.findById(id).orElseThrow(() -> new ItemNotFoundException("id", String.valueOf(id)));
     }
 }

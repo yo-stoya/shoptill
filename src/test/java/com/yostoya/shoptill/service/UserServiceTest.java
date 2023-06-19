@@ -2,14 +2,13 @@ package com.yostoya.shoptill.service;
 
 import com.yostoya.shoptill.domain.Item;
 import com.yostoya.shoptill.domain.Role;
-import com.yostoya.shoptill.domain.RoleType;
 import com.yostoya.shoptill.domain.User;
 import com.yostoya.shoptill.domain.dto.*;
-import com.yostoya.shoptill.exception.ApiException;
+import com.yostoya.shoptill.exception.alreadyexist.UserAlreadyExistException;
+import com.yostoya.shoptill.exception.notfound.UserNotFoundException;
 import com.yostoya.shoptill.mapper.ItemMapper;
 import com.yostoya.shoptill.mapper.UserMapper;
 import com.yostoya.shoptill.repository.ItemRepository;
-import com.yostoya.shoptill.repository.RoleRepository;
 import com.yostoya.shoptill.repository.UserRepository;
 import com.yostoya.shoptill.service.facade.TillFacade;
 import com.yostoya.shoptill.service.impl.UserServiceImpl;
@@ -19,7 +18,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -41,10 +39,6 @@ class UserServiceTest {
     @Mock
     private  UserMapper userMapper;
     @Mock
-    private  RoleRepository roleRepository;
-    @Mock
-    private  PasswordEncoder passwordEncoder;
-    @Mock
     private  ItemRepository itemRepository;
     @Mock
     private  ItemMapper itemMapper;
@@ -54,45 +48,45 @@ class UserServiceTest {
     @InjectMocks
     private UserServiceImpl service;
 
+    private User user;
+    private UserDto expected;
+
+    private void init() {
+        user = new User(null, "f", "l", "e", "p", Role.USER, LocalDateTime.now());
+        expected = new UserDto(1L, "f", "l", "e", Role.USER.name(), LocalDateTime.now());
+    }
+
     @Test
     void register() {
-        final User user = new User(null, "f", "l", "e", "p", Mockito.mock(Role.class), LocalDateTime.now());
 
-        when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
-        when(userRepository.save(user)).thenReturn(user);
+        init();
 
-        final Role role = new Role(RoleType.ROLE_USER, "P");
-        when(roleRepository.findByName(RoleType.ROLE_USER)).thenReturn(role);
+        final RegisterDto registerDto = new RegisterDto("f", "l", "e", "p");
+        when(userMapper.toUser(any())).thenReturn(user);
+        when(userRepository.save(any())).thenReturn(user);
+        when(userMapper.toDto(any())).thenReturn(expected);
 
-        final UserDto expected = new UserDto(1L, "f", "l", "e", Mockito.mock(RoleDto.class), LocalDateTime.now());
-        when(userMapper.toDto(user)).thenReturn(expected);
-
-        String encodedPassword = "p";
-        when(passwordEncoder.encode(user.getPassword())).thenReturn(encodedPassword);
-
-        final UserDto actual = service.register(user);
+        final UserDto actual = service.register(registerDto);
 
         assertNotNull(actual);
         assertThat(actual).isEqualTo(expected);
-        verify(userRepository, times(1)).existsByEmail(user.getEmail());
+        verify(userMapper, times(1)).toUser(registerDto);
         verify(userRepository, times(1)).save(user);
-        verify(roleRepository, times(1)).findByName(RoleType.ROLE_USER);
-        verify(passwordEncoder, times(1)).encode(user.getPassword());
         verify(userMapper, times(1)).toDto(user);
     }
 
     @Test
     void register_user_exist_exception() {
 
-        when(userRepository.existsByEmail(any())).thenThrow(ApiException.class);
-        assertThatExceptionOfType(ApiException.class)
-                .isThrownBy(() -> service.register(Mockito.mock(User.class)));
+        when(userMapper.toUser(any())).thenThrow(UserAlreadyExistException.class);
+        assertThatExceptionOfType(UserAlreadyExistException.class)
+                .isThrownBy(() -> service.register(Mockito.mock(RegisterDto.class)));
     }
 
     @Test
     void getUserByEmail() {
-        final User user = new User(null, "f", "l", "e", "p", Mockito.mock(Role.class), LocalDateTime.now());
-        final UserDto expected = new UserDto(1L, "f", "l", "e", Mockito.mock(RoleDto.class), LocalDateTime.now());
+
+        init();
 
         when(userRepository.findByEmail(any())).thenReturn(Optional.of(user));
         when(userMapper.toDto(userRepository.findByEmail(any()).get())).thenReturn(expected);
@@ -105,8 +99,8 @@ class UserServiceTest {
     @Test
     void getUserByEmail_notFound_exception() {
 
-        when(userRepository.findByEmail(any())).thenThrow(ApiException.class);
-        assertThatExceptionOfType(ApiException.class)
+        when(userRepository.findByEmail(any())).thenThrow(UserNotFoundException.class);
+        assertThatExceptionOfType(UserNotFoundException.class)
                 .isThrownBy(() -> service.getUserByEmail(any()));
     }
 

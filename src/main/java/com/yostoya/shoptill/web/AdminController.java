@@ -3,7 +3,7 @@ package com.yostoya.shoptill.web;
 
 import com.yostoya.shoptill.domain.HttpResponse;
 import com.yostoya.shoptill.domain.dto.ItemDto;
-import com.yostoya.shoptill.service.ItemService;
+import com.yostoya.shoptill.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,37 +20,38 @@ import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/item")
-public class ItemController {
+@RequestMapping("/admin")
+@PreAuthorize("hasRole('ADMIN')")
+public class AdminController {
 
-    private final ItemService itemService;
+    private final AdminService adminService;
 
-    @PreAuthorize("hasAuthority('CREATE:ITEM')")
-    @PostMapping("/add")
+    @PostMapping("/item/add")
+    @PreAuthorize("hasAuthority('admin:create')")
     public ResponseEntity<HttpResponse> addItem(@RequestBody @Valid final ItemDto newItem) {
 
-        final ItemDto created = itemService.addItem(newItem);
+        final ItemDto created = adminService.addItem(newItem);
         return ResponseEntity
                 .created(getCreatedUri(created.getId()))
                 .body(new HttpResponse(CREATED, "Item added", Map.of("item", created)));
 
     }
 
-    @PreAuthorize("hasAuthority('UPDATE:ITEM')")
-    @PutMapping("/{id}/edit")
+    @PutMapping("/item/{id}/edit")
+    @PreAuthorize("hasAuthority('admin:update')")
     public ResponseEntity<HttpResponse> update(@PathVariable final Long id,
                                                @RequestBody @Valid final ItemDto updateItem) {
 
-        final ItemDto updated = itemService.update(id, updateItem);
+        final ItemDto updated = adminService.update(id, updateItem);
         return ok(new HttpResponse(OK, "Item updated.", Map.of("item", updated)));
 
     }
 
-    @PreAuthorize("hasAuthority('DELETE:ITEM')")
     @DeleteMapping("/{id}/remove")
+    @PreAuthorize("hasAuthority('admin:delete')")
     public ResponseEntity<HttpResponse> delete(@PathVariable final Long id) {
 
-        itemService.delete(id);
+        adminService.delete(id);
         return noContent().build();
     }
 

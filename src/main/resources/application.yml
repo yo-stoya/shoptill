@@ -26,18 +26,8 @@ spring:
     swagger-ui:
       path: /swagger-ui.html
 
-server:
-  error:
-    whitelabel:
-      enabled: false
-    path: /error
-
 jwt:
   secret: supersecretcomplexsecret
-
-  # swagger-ui custom path
-
-
 
 logging:
   level:

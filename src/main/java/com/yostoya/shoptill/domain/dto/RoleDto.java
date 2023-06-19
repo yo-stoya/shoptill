@@ -1,22 +1,19 @@
 package com.yostoya.shoptill.domain.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.yostoya.shoptill.domain.RoleType;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import com.yostoya.shoptill.domain.Permission;
+import com.yostoya.shoptill.domain.Role;
 import jakarta.validation.constraints.NotBlank;
-import lombok.NonNull;
 
-import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_DEFAULT;
+import java.util.Set;
 
 
 public record RoleDto(
 
         @NotBlank
-        String name,
+        Role name,
 
         @NotBlank
-        String permissions
+        Set<Permission> permissions
 ) {
 
 }

@@ -20,7 +20,6 @@ public class HttpResponse {
 
     protected int statusCode;
 
-
     protected HttpStatus status;
 
     protected String message;
@@ -34,5 +33,12 @@ public class HttpResponse {
         this.status = status;
         this.message = message;
         this.data = data;
+    }
+
+    public HttpResponse(HttpStatus status, String message) {
+        this.timestamp = LocalDateTime.now().toString();
+        this.statusCode = status.value();
+        this.status = status;
+        this.message = message;
     }
 }

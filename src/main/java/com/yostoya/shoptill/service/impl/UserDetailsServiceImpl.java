@@ -1,7 +1,7 @@
 package com.yostoya.shoptill.service.impl;
 
 import com.yostoya.shoptill.domain.User;
-import com.yostoya.shoptill.exception.ApiException;
+import com.yostoya.shoptill.exception.notfound.UserNotFoundException;
 import com.yostoya.shoptill.repository.UserRepository;
 import com.yostoya.shoptill.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         final Optional<User> user = userRepository.findByEmail(email);
 
         if (user.isEmpty()) {
-            throw new ApiException("User not found");
+            throw new UserNotFoundException("email", email);
         }
 
         return new UserPrincipal(user.get());

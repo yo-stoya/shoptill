@@ -25,7 +25,7 @@ public record UserDto(
         String email,
 
         @NonNull
-        RoleDto role,
+        String role,
 
         @JsonFormat(shape = STRING, pattern = "dd-MM-yyyy HH:mm:ss")
         LocalDateTime createdOn

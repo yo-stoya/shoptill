@@ -25,7 +25,7 @@ public class ApiAuthenticationEntryPoint implements AuthenticationEntryPoint {
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
 
-        final HttpResponse responseBody = new HttpResponse(UNAUTHORIZED, "You need to login first.", Map.of());
+        final HttpResponse responseBody = new HttpResponse(UNAUTHORIZED, "You need to login first.");
         response.setContentType(APPLICATION_JSON_VALUE);
         response.setStatus(UNAUTHORIZED.value());
 

@@ -38,8 +38,9 @@ public class User extends BaseDomain {
     @NotEmpty(message = "Password cannot be empty")
     private String password;
 
-    @ManyToOne
+    @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(nullable = false)
     private LocalDateTime createdOn = LocalDateTime.now();
 }
